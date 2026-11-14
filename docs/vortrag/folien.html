@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>Fernweh – Vortrag T4</title>
+<link rel="stylesheet" href="fonts.css" />
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root {
+    --lime: #c8ff32; --sapphire: #586eff; --sun: #ffffa0; --brick: #bc4749;
+    --lav: #e9ebff; --ink: #111318; --paper: #fafaf6; --muted: #5b5f70;
+    --display: "Unbounded Variable", sans-serif; --body: "Outfit Variable", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ccc; font-family: var(--body); color: var(--ink); }
+  .slide {
+    width: 1280px; height: 720px; margin: 20px auto; background: var(--paper);
+    position: relative; overflow: hidden; padding: 56px 64px 48px; display: flex; flex-direction: column;
+    page-break-after: always; break-after: page;
+  }
+  @media print { html, body { background: none; } .slide { margin: 0; } }
+  .eyebrow { font-size: 18px; font-weight: 500; color: var(--muted); margin: 0 0 10px; }
+  .eyebrow b { color: var(--sapphire); margin-right: 8px; }
+  h1, h2 { font-family: var(--display); letter-spacing: -0.035em; margin: 0; font-weight: 600; }
+  h2 { font-size: 44px; line-height: 1.05; }
+  h2 span { color: var(--sapphire); }
+  .footer {
+    position: absolute; left: 64px; right: 64px; bottom: 22px; display: flex; justify-content: space-between;
+    font-size: 14px; color: var(--muted);
+  }
+  .footer b { font-family: var(--display); color: var(--ink); font-weight: 700; }
+  .chip { display: inline-block; padding: 6px 14px; border-radius: 999px; font-weight: 600; font-size: 15px; }
+  .chip-lime { background: var(--lime); }
+  .chip-ink { background: var(--ink); color: #fff; }
+  .chip-lav { background: var(--lav); }
+  .tile { border-radius: 28px; padding: 26px 28px; }
+  ul { margin: 0; padding-left: 20px; } li { margin: 4px 0; }
+
+  /* Folie 1 */
+  .s1 { padding: 16px; flex-direction: row; gap: 16px; }
+  .s1 .photo {
+    flex: 1.15; border-radius: 36px; background: url("../../frontend/src/assets/hero.webp") center 70%/cover;
+    position: relative; padding: 40px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .s1 .photo::after { content: ""; position: absolute; inset: 0; border-radius: 36px;
+    background: linear-gradient(180deg, transparent 50%, rgba(17,19,24,.75)); }
+  .s1 .brand { font-family: var(--display); font-weight: 700; font-size: 104px; letter-spacing: -0.05em;
+    color: var(--sapphire); line-height: .85; position: relative; z-index: 1; }
+  .s1 .claim { font-family: var(--display); color: #fff; font-size: 34px; line-height: 1.08; position: relative; z-index: 1; margin: 0; }
+  .s1 .claim span { color: var(--lime); }
+  .s1 .right { flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 34px 26px 54px 14px; }
+  .s1 .tile p { margin: 6px 0 0; font-size: 19px; line-height: 1.35; }
+  .s1 .tile h3 { margin: 0; font-family: var(--display); font-size: 17px; text-transform: uppercase; letter-spacing: .02em; }
+
+  /* Folie 2 */
+  .diagram { flex: 1; margin-top: 18px; }
+
+  /* Folie 3 */
+  .adr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px; flex: 1; }
+  .adr h3 { font-family: var(--display); font-size: 22px; margin: 10px 0 14px; letter-spacing: -0.02em; }
+  .adr .row { display: grid; grid-template-columns: 140px 1fr; gap: 10px; font-size: 19px; line-height: 1.4; margin: 12px 0; }
+  .adr .k { font-weight: 700; }
+  .adr .no { color: var(--brick); text-decoration: line-through; text-decoration-thickness: 2px; }
+
+  /* Folie 5 */
+  .fz { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; flex: 1; }
+  .fz .tile h3 { font-family: var(--display); font-size: 21px; margin: 0 0 14px; }
+  .fz li { font-size: 20px; line-height: 1.4; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ 1 · Idee und Nutzen ============ -->
+<section class="slide s1">
+  <div class="photo">
+    <div class="brand">FERNWEH</div>
+    <p class="claim">Sammle Orte,<br /><span>die dich rufen.</span></p>
+  </div>
+  <div class="right">
+    <p class="eyebrow"><b>01</b>Idee und Nutzen</p>
+    <div class="tile" style="background: var(--lav)">
+      <h3>Problem</h3>
+      <p>Reiseideen liegen verstreut in Notizen, Screenshots und Lesezeichen – Wunschziele, Pläne und Erinnerungen gehen verloren.</p>
+    </div>
+    <div class="tile" style="background: var(--sun)">
+      <h3>Zielgruppe</h3>
+      <p>Reisebegeisterte, die ihre Ziele an einem Ort sammeln, planen und bewerten wollen.</p>
+    </div>
+    <div class="tile" style="background: var(--lime)">
+      <h3>Kernfunktion</h3>
+      <p>Eigene Reiseziele <b>anlegen, anzeigen, bearbeiten, löschen</b>, filtern, als „besucht“ markieren und bewerten – jede:r sieht nur die eigenen Daten.</p>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <span class="chip chip-ink">Vue 3 + TS</span><span class="chip chip-ink">Deno + Hono</span>
+      <span class="chip chip-lav">REST / JSON</span><span class="chip chip-lav">Session-Cookie</span>
+    </div>
+  </div>
+  <div class="footer" style="left:auto; right:42px; bottom:22px; gap:24px"><span><b>fernweh</b> · Alina Pabst · ON25:T4 · DHBW Mosbach</span><span>1/5</span></div>
+</section>
+
+<!-- ============ 2 · Architektur ============ -->
+<section class="slide">
+  <p class="eyebrow"><b>02</b>Architektur · Komponenten und Datenfluss</p>
+  <h2>Entkoppelt: <span>Frontend kennt nur die REST-API.</span></h2>
+  <svg class="diagram" viewBox="0 0 1152 470" font-family="Outfit Variable, sans-serif">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111318"/></marker>
+      <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#586eff"/></marker>
+    </defs>
+    <!-- Browser -->
+    <rect x="0" y="20" width="340" height="430" rx="28" fill="#e9ebff"/>
+    <text x="24" y="58" font-family="Unbounded Variable" font-size="19" font-weight="600">Browser · Vue 3</text>
+    <text x="24" y="80" font-size="14" fill="#5b5f70">localhost:5173 · Vite · Bootstrap/Sass</text>
+    <rect x="24" y="100" width="292" height="92" rx="18" fill="#fff"/>
+    <text x="42" y="130" font-size="16" font-weight="700">Komponenten (SFC)</text>
+    <text x="42" y="153" font-size="14" fill="#5b5f70">LoginView · DestinationsPage</text>
+    <text x="42" y="173" font-size="14" fill="#5b5f70">Card · FormModal · DetailModal · FilterBar</text>
+    <rect x="24" y="214" width="292" height="92" rx="18" fill="#fff"/>
+    <text x="42" y="244" font-size="16" font-weight="700">Composables (Zustand)</text>
+    <text x="42" y="267" font-size="14" fill="#5b5f70">useAuth: wer ist angemeldet?</text>
+    <text x="42" y="287" font-size="14" fill="#5b5f70">useDestinations: Liste, Filter, CRUD</text>
+    <rect x="24" y="328" width="292" height="96" rx="18" fill="#111318"/>
+    <text x="42" y="358" font-size="16" font-weight="700" fill="#c8ff32">api/client.ts</text>
+    <text x="42" y="381" font-size="14" fill="#fff">fetch · credentials: "include"</text>
+    <text x="42" y="401" font-size="14" fill="#fff">Fehlerformat → ApiRequestError</text>
+    <line x1="170" y1="192" x2="170" y2="212" stroke="#111318" stroke-width="2" marker-end="url(#a)"/>
+    <line x1="170" y1="306" x2="170" y2="326" stroke="#111318" stroke-width="2" marker-end="url(#a)"/>
+
+    <!-- Kanal -->
+    <rect x="352" y="300" width="186" height="98" rx="18" fill="#c8ff32"/>
+    <text x="445" y="330" text-anchor="middle" font-family="Unbounded Variable" font-size="14" font-weight="600">HTTP / JSON</text>
+    <text x="445" y="352" text-anchor="middle" font-size="14">REST-Vertrag</text>
+    <text x="445" y="372" text-anchor="middle" font-size="14">+ Cookie sid (HttpOnly)</text>
+    <line x1="318" y1="360" x2="352" y2="360" stroke="#111318" stroke-width="2.5"/>
+    <line x1="538" y1="360" x2="572" y2="360" stroke="#111318" stroke-width="2.5" marker-end="url(#a)"/>
+    <text x="445" y="428" text-anchor="middle" font-size="13" fill="#5b5f70">z. B. POST /api/destinations → 201</text>
+
+    <!-- Server -->
+    <rect x="574" y="20" width="400" height="430" rx="28" fill="#fff" stroke="#e1e3ee" stroke-width="2"/>
+    <text x="598" y="58" font-family="Unbounded Variable" font-size="19" font-weight="600">Server · Deno + Hono</text>
+    <text x="598" y="80" font-size="14" fill="#5b5f70">localhost:8000 · TypeScript</text>
+    <g font-size="14">
+      <rect x="598" y="98" width="352" height="64" rx="16" fill="#e9ebff"/>
+      <text x="616" y="124" font-size="16" font-weight="700">Middleware</text>
+      <text x="616" y="146" fill="#5b5f70">CORS (nur :5173) · requireAuth: Cookie → User / 401</text>
+      <rect x="598" y="176" width="352" height="64" rx="16" fill="#e9ebff"/>
+      <text x="616" y="202" font-size="16" font-weight="700">Routes (Controller)</text>
+      <text x="616" y="224" fill="#5b5f70">/api/auth · /api/destinations · Zod → 400</text>
+      <rect x="598" y="254" width="352" height="64" rx="16" fill="#586eff"/>
+      <text x="616" y="280" font-size="16" font-weight="700" fill="#fff">Services (Geschäftslogik)</text>
+      <text x="616" y="302" fill="#fff">Auth (PBKDF2, Sessions) · Regeln R1–R4 · ownerId</text>
+      <rect x="598" y="332" width="352" height="64" rx="16" fill="#e9ebff"/>
+      <text x="616" y="358" font-size="16" font-weight="700">Repository</text>
+      <text x="616" y="380" fill="#5b5f70">Collection-Interface · JsonFileCollection</text>
+    </g>
+    <g stroke="#586eff" stroke-width="2" marker-end="url(#b)">
+      <line x1="774" y1="162" x2="774" y2="174"/><line x1="774" y1="240" x2="774" y2="252"/><line x1="774" y1="318" x2="774" y2="330"/>
+    </g>
+    <text x="598" y="428" font-size="13" fill="#5b5f70">Fehler überall → { error: { code, message, details } }</text>
+
+    <!-- Persistenz -->
+    <line x1="950" y1="364" x2="1004" y2="364" stroke="#111318" stroke-width="2.5" marker-end="url(#a)"/>
+    <g transform="translate(1008 250)">
+      <ellipse cx="72" cy="20" rx="72" ry="20" fill="#ffffa0" stroke="#111318" stroke-width="2"/>
+      <path d="M0 20 V180 A72 20 0 0 0 144 180 V20" fill="#ffffa0" stroke="#111318" stroke-width="2"/>
+      <ellipse cx="72" cy="20" rx="72" ry="20" fill="#ffffa0" stroke="#111318" stroke-width="2"/>
+      <text x="72" y="70" text-anchor="middle" font-family="Unbounded Variable" font-size="13" font-weight="600">data/</text>
+      <text x="72" y="100" text-anchor="middle" font-size="14">users.json</text>
+      <text x="72" y="122" text-anchor="middle" font-size="14">sessions.json</text>
+      <text x="72" y="144" text-anchor="middle" font-size="14">destinations.json</text>
+    </g>
+    <text x="1080" y="230" text-anchor="middle" font-size="13" fill="#5b5f70">atomar: tmp → rename</text>
+
+    <!-- Mobile App Hinweis -->
+    <rect x="1000" y="40" width="152" height="120" rx="20" fill="none" stroke="#586eff" stroke-width="2" stroke-dasharray="6 6"/>
+    <text x="1076" y="78" text-anchor="middle" font-size="14" font-weight="700" fill="#586eff">anderer Client?</text>
+    <text x="1076" y="100" text-anchor="middle" font-size="13" fill="#5b5f70">mobile App, curl</text>
+    <text x="1076" y="120" text-anchor="middle" font-size="13" fill="#5b5f70">→ gleiche API,</text>
+    <text x="1076" y="140" text-anchor="middle" font-size="13" fill="#5b5f70">gleiche Regeln</text>
+    <line x1="1000" y1="120" x2="976" y2="128" stroke="#586eff" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#b)"/>
+  </svg>
+  <div class="footer"><span><b>fernweh</b> · Alina Pabst</span><span>2/5</span></div>
+</section>
+
+<!-- ============ 3 · Entscheidungen ============ -->
+<section class="slide">
+  <p class="eyebrow"><b>03</b>Zwei wichtige Entscheidungen (ADR)</p>
+  <h2>Ich habe X statt Y gewählt, <span>weil …</span></h2>
+  <div class="adr-grid">
+    <div class="tile adr" style="background: var(--lav)">
+      <span class="chip chip-ink">ADR-003 · Anmeldung</span>
+      <h3>Server-Session im HttpOnly-Cookie</h3>
+      <div class="row"><span class="k">Verworfen</span><span class="no">JWT im localStorage + Authorization-Header</span></div>
+      <div class="row"><span class="k">Weil</span><span>Token im localStorage ist per XSS lesbar; JWT kann vor Ablauf nicht widerrufen werden. Session: Logout wirkt sofort, Cookie für JS unsichtbar.</span></div>
+      <div class="row"><span class="k">Konsequenz</span><span>Server speichert Sessions (nur SHA-256 des Tokens). CSRF beachten → SameSite=Lax, JSON-only, CORS nur :5173.</span></div>
+      <div class="row"><span class="k">Passwörter</span><span>PBKDF2-SHA256, 600 000 Iterationen, Salt pro Nutzer.</span></div>
+    </div>
+    <div class="tile adr" style="background: var(--sun)">
+      <span class="chip chip-ink">ADR-002 · Persistenz</span>
+      <h3>JSON-Dateien hinter einem Interface</h3>
+      <div class="row"><span class="k">Verworfen</span><span class="no">SQLite / Deno KV</span></div>
+      <div class="row"><span class="k">Weil</span><span>3 kleine Sammlungen, wenige Nutzer – Architektur bleibt sichtbar, keine Zusatz-Infrastruktur. Schreiben atomar und serialisiert.</span></div>
+      <div class="row"><span class="k">Konsequenz</span><span>Keine Transaktionen/Indizes, skaliert nicht. Austausch betrifft nur <b>JsonFileCollection</b> – Services und API bleiben gleich.</span></div>
+      <div class="row"><span class="k">Datentrennung</span><span>userId nur aus der Session; fremde ID → 404.</span></div>
+    </div>
+  </div>
+  <div class="footer"><span><b>fernweh</b> · Alina Pabst</span><span>3/5</span></div>
+</section>
+
+<!-- ============ 4 · Datenfluss (Demo) ============ -->
+<section class="slide">
+  <p class="eyebrow"><b>04</b>Live-Demo · Was passiert beim Klick auf „Speichern“?</p>
+  <h2>Von der Oberfläche <span>bis in die Datei.</span></h2>
+  <svg class="diagram" viewBox="0 0 1152 470" font-family="Outfit Variable, sans-serif" font-size="14">
+    <defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111318"/></marker>
+    <marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#586eff"/></marker></defs>
+    <g font-weight="700" text-anchor="middle">
+      <rect x="10" y="14" width="150" height="44" rx="22" fill="#e9ebff"/><text x="85" y="42">FormModal</text>
+      <rect x="200" y="14" width="170" height="44" rx="22" fill="#e9ebff"/><text x="285" y="42">useDestinations</text>
+      <rect x="410" y="14" width="170" height="44" rx="22" fill="#111318"/><text x="495" y="42" fill="#c8ff32">requireAuth</text>
+      <rect x="620" y="14" width="150" height="44" rx="22" fill="#e9ebff"/><text x="695" y="42">Route + Zod</text>
+      <rect x="810" y="14" width="160" height="44" rx="22" fill="#586eff"/><text x="890" y="42" fill="#fff">Service</text>
+      <rect x="1000" y="14" width="140" height="44" rx="22" fill="#ffffa0"/><text x="1070" y="42">JSON-Datei</text>
+    </g>
+    <g stroke="#c9ccda" stroke-width="2" stroke-dasharray="5 6">
+      <line x1="85" y1="58" x2="85" y2="460"/><line x1="285" y1="58" x2="285" y2="460"/><line x1="495" y1="58" x2="495" y2="460"/>
+      <line x1="695" y1="58" x2="695" y2="460"/><line x1="890" y1="58" x2="890" y2="460"/><line x1="1070" y1="58" x2="1070" y2="460"/>
+    </g>
+    <g stroke="#111318" stroke-width="2" marker-end="url(#c)">
+      <line x1="85" y1="96" x2="281" y2="96"/>
+      <line x1="285" y1="136" x2="491" y2="136"/>
+      <line x1="495" y1="186" x2="691" y2="186"/>
+      <line x1="695" y1="226" x2="886" y2="226"/>
+      <line x1="890" y1="276" x2="1066" y2="276"/>
+    </g>
+    <g stroke="#586eff" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#d)">
+      <line x1="1070" y1="316" x2="894" y2="316"/>
+      <line x1="890" y1="346" x2="699" y2="346"/>
+      <line x1="695" y1="386" x2="289" y2="386"/>
+      <line x1="285" y1="436" x2="89" y2="436"/>
+    </g>
+    <g>
+      <text x="183" y="88" text-anchor="middle">emit("save", daten)</text>
+      <text x="388" y="128" text-anchor="middle" font-weight="700">POST /api/destinations</text>
+      <text x="388" y="154" text-anchor="middle" fill="#5b5f70">JSON + Cookie sid</text>
+      <text x="593" y="178" text-anchor="middle">Session → c.set("user")</text>
+      <text x="593" y="204" text-anchor="middle" fill="#5b5f70">sonst 401</text>
+      <text x="792" y="218" text-anchor="middle">create(user.id, input)</text>
+      <text x="792" y="244" text-anchor="middle" fill="#5b5f70">Zod-Fehler → 400</text>
+      <text x="980" y="268" text-anchor="middle">save() · tmp → rename</text>
+      <text x="980" y="296" text-anchor="middle" fill="#5b5f70">vorher R1–R3: 422 / 409</text>
+      <text x="980" y="308" text-anchor="middle" fill="#586eff"></text>
+      <text x="792" y="338" text-anchor="middle" fill="#586eff">DTO ohne ownerId</text>
+      <text x="492" y="378" text-anchor="middle" fill="#586eff" font-weight="700">201 Created · Location · JSON</text>
+      <text x="187" y="428" text-anchor="middle" fill="#586eff">neue Karte + Toast</text>
+    </g>
+  </svg>
+  <div style="display:flex; gap:10px; margin-top:4px">
+    <span class="chip chip-lime">Demo 1 · Anlegen → wiedersehen</span>
+    <span class="chip chip-lav">Demo 2 · Netzwerk-Tab: Methode, URL, Status, JSON</span>
+    <span class="chip chip-lav">Demo 3 · Fehlerfall 422 / 401</span>
+    <span class="chip chip-lav">Demo 4 · Max sieht Lenas Daten nicht</span>
+  </div>
+  <div class="footer"><span><b>fernweh</b> · Alina Pabst</span><span>4/5</span></div>
+</section>
+
+<!-- ============ 5 · Fazit ============ -->
+<section class="slide">
+  <p class="eyebrow"><b>05</b>Fazit</p>
+  <h2>Klein, vollständig, <span>entkoppelt, begründbar.</span></h2>
+  <div class="fz">
+    <div class="tile" style="background: var(--lav)">
+      <h3>Abweichungen vom Entwurf</h3>
+      <ul>
+        <li><b>Benutzerkonten</b> mit Login, Session-Cookie und Datentrennung – vorher eine gemeinsame Liste.</li>
+        <li>Feld <b>imageUrl</b> (nur HTTPS) für die Karten-Darstellung.</li>
+        <li>Kein Vue Router / Pinia – Composables reichen für eine Seite.</li>
+      </ul>
+    </div>
+    <div class="tile" style="background: var(--lime)">
+      <h3>Was ich anders machen würde</h3>
+      <ul>
+        <li><b>SQLite</b> statt JSON-Dateien (Transaktionen, Indizes, Filtern in der DB).</li>
+        <li>Datenmodell und API <b>zuerst</b> als OpenAPI festlegen.</li>
+        <li>Frühzeitig Frontend-Tests (Vitest) ergänzen.</li>
+      </ul>
+    </div>
+    <div class="tile" style="background: var(--ink); color: #fff">
+      <h3 style="color: var(--lime)">Größte Schwäche</h3>
+      <ul>
+        <li><b>Kein Rate-Limiting beim Login</b> – Brute-Force wird nur durch die PBKDF2-Kosten gebremst.</li>
+        <li>JSON-Persistenz skaliert nicht für viele Nutzer.</li>
+        <li>Kein Passwort-Reset, Bilder nur als externe URL.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span><b>fernweh</b> · Alina Pabst</span><span>5/5</span></div>
+</section>
+
+<script>
+  // Vorschau einzelner Folien: folien.html#3 zeigt nur Folie 3
+  const n = Number(location.hash.slice(1));
+  if (n) document.querySelectorAll(".slide").forEach((s, i) => {
+    if (i + 1 !== n) s.style.display = "none"; else s.style.margin = "0";
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+// ---------------------------------------------------------------------------
+// Design-Tokens – inspiriert vom "Locally"-Styleguide:
+// Chartreuse, Electric Sapphire, Walking on Sunshine, Blushed Brick
+// ---------------------------------------------------------------------------
+$lime: #c8ff32;
+$sapphire: #586eff;
+$sunshine: #ffffa0;
+$brick: #bc4749;
+$lavender: #e9ebff;
+$ink: #111318;
+$paper: #fafaf6;
+
+// Bootstrap-Variablen überschreiben (vor dem Import)
+$primary: $sapphire;
+$secondary: #6b6f80;
+$success: #2f9e44;
+$danger: $brick;
+$warning: $sunshine;
+$dark: $ink;
+$body-bg: $paper;
+$body-color: $ink;
+$font-family-sans-serif: "Outfit Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+$headings-font-family: "Unbounded Variable", "Outfit Variable", sans-serif;
+$headings-font-weight: 600;
+$border-radius: 1rem;
+$border-radius-lg: 1.75rem;
+$border-radius-sm: 0.75rem;
+$border-radius-pill: 50rem;
+$input-btn-padding-y: 0.7rem;
+$input-btn-padding-x: 1.25rem;
+$btn-font-weight: 600;
+$input-border-color: #dcdde6;
+$input-focus-border-color: $sapphire;
+$input-focus-box-shadow: 0 0 0 0.25rem rgba($sapphire, 0.2);
+$modal-content-border-radius: 2rem;
+$link-color: $sapphire;
+$enable-shadows: false;
+
+@import "bootstrap/scss/bootstrap";
+
+:root {
+  --lime: #{$lime};
+  --sapphire: #{$sapphire};
+  --sunshine: #{$sunshine};
+  --brick: #{$brick};
+  --lavender: #{$lavender};
+  --ink: #{$ink};
+  --paper: #{$paper};
+  --font-display: #{$headings-font-family};
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  background: var(--paper);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+// Kleine Abschnittsmarke wie "01 About Locally"
+.eyebrow {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4a4d5a;
+  letter-spacing: 0.01em;
+  .num {
+    margin-right: 0.5rem;
+  }
+}
+
+.text-sapphire {
+  color: var(--sapphire) !important;
+}
+
+// Pill-Buttons im Locally-Stil
+.btn-lime {
+  --bs-btn-bg: #{$lime};
+  --bs-btn-color: #{$ink};
+  --bs-btn-border-color: #{$lime};
+  --bs-btn-hover-bg: #{darken($lime, 6%)};
+  --bs-btn-hover-border-color: #{darken($lime, 6%)};
+  --bs-btn-hover-color: #{$ink};
+  --bs-btn-active-bg: #{darken($lime, 10%)};
+  --bs-btn-active-color: #{$ink};
+  --bs-btn-focus-shadow-rgb: 200, 255, 50;
+  --bs-btn-disabled-bg: #{$lime};
+  --bs-btn-disabled-color: #{$ink};
+  --bs-btn-disabled-border-color: #{$lime};
+}
+
+.btn-ink {
+  --bs-btn-bg: #{$ink};
+  --bs-btn-color: #fff;
+  --bs-btn-border-color: #{$ink};
+  --bs-btn-hover-bg: #2a2d36;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #000;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: #{$ink};
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-border-color: #{$ink};
+}
+
+.btn-soft {
+  --bs-btn-bg: #{$lavender};
+  --bs-btn-color: #{$ink};
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-bg: #dadefd;
+  --bs-btn-hover-color: #{$ink};
+  --bs-btn-active-bg: #cfd4fc;
+  --bs-btn-disabled-bg: #{$lavender};
+  --bs-btn-disabled-color: #{$ink};
+  --bs-btn-disabled-border-color: transparent;
+}
+
+.form-control,
+.form-select {
+  border-radius: $border-radius-pill;
+}
+textarea.form-control {
+  border-radius: 1.25rem;
+}
+.form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: $border-radius-pill;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.chip-ink {
+  background: $ink;
+  color: #fff;
+}
+.chip-lime {
+  background: $lime;
+  color: $ink;
+}
+.chip-glass {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+:focus-visible {
+  outline: 3px solid $sapphire;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

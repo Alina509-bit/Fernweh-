@@ -1,0 +1,29 @@
+# Abhängigkeiten & Build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Laufzeitdaten (Beispieldaten liegen in backend/data/seed.json)
+backend/data/destinations.json
+backend/data/users.json
+backend/data/sessions.json
+backend/data/*.tmp
+
+# Lokale SSL/TLS-Zertifikate – niemals committen!
+*.key
+*.pem
+*.pfx
+*.crt
+rootCA*.pem
+certs/
+
+# Umgebungsvariablen
+.env
+.env.local
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
