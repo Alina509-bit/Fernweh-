@@ -4,40 +4,38 @@ Prüfungsprojekt T4 „Entwicklung von Webanwendungen mit entkoppelter Architekt
 
 **Problem:** Reiseideen liegen verstreut in Notizen, Screenshots und Lesezeichen. **Zielgruppe:** Menschen, die
 gern reisen und ihre Wunsch-, geplanten und besuchten Ziele an einem Ort sammeln wollen.
-**Kernfunktion:** Nutzer melden sich an und können ihre eigenen **Reiseziele anlegen, anzeigen, bearbeiten und
-löschen**. Ein Reiseziel besteht aus Name, Land, Kontinent, Notizen, Status (Wunschziel / geplant / besucht),
-Reisedatum, einer Bewertung von 1–5 und optional einem Bild. Ziele lassen sich filtern, durchsuchen, sortieren,
-als „besucht“ markieren und bewerten. Jeder Nutzer sieht ausschließlich seine eigenen Daten.
-
-**Prüfung:** Folien `docs/vortrag/Fernweh-Folien-Alina-Pabst.pdf` (Quelle: `folien.html`) ·
-Demo-Ablauf `docs/demo-skript.md` · Gesprächsvorbereitung `docs/pruefungsvorbereitung.md`
+**Kernfunktion:** Reiseziele **anlegen, anzeigen, bearbeiten und löschen**. Ein Reiseziel besteht aus Name, Land,
+Kontinent, Notizen, Status (Wunschziel / geplant / besucht), Reisedatum, einer Bewertung von 1–5 und optional einem
+Bild. Ziele lassen sich filtern, durchsuchen, sortieren, als „besucht“ markieren und bewerten. Ein **Reisekalender**
+zeigt, wann Reisen geplant sind.
 
 ## Architektur
 
 ```mermaid
 flowchart LR
   subgraph Browser["Browser (localhost:5173)"]
-    UI["Vue-Komponenten<br/>LoginView · DestinationsPage · Card · Form · Detail"]
-    ST["Composables<br/>useAuth · useDestinations"]
-    API["api/client.ts<br/>fetch + credentials: include"]
+    UI["Vue-Komponenten<br/>Hero · Überblick · TripCalendar · Card · Form · Detail"]
+    ST["Composable<br/>useDestinations"]
+    API["api/client.ts<br/>fetch + JSON"]
     UI --> ST --> API
   end
-  subgraph Server["Deno + Hono (localhost:8000)"]
-    MW["Middleware<br/>CORS · requireAuth (Cookie → User)"]
-    R["Routes<br/>/api/auth · /api/destinations<br/>Zod-Validierung"]
-    S["Services<br/>AuthService · DestinationService<br/>Regeln R1–R4, Datentrennung"]
+  subgraph Server["Deno + Hono (127.0.0.1:8000)"]
+    MW["Middleware<br/>Logger · CORS"]
+    R["Route /api/destinations<br/>Zod-Validierung"]
+    S["DestinationService<br/>Regeln R1–R4"]
     REPO["Collection-Interface<br/>JsonFileCollection"]
     MW --> R --> S --> REPO
   end
-  DB[("data/<br/>users.json<br/>sessions.json<br/>destinations.json")]
-  API -- "HTTP/JSON + Cookie sid" --> MW
+  DB[("data/destinations.json")]
+  API -- "HTTP / JSON" --> MW
   REPO --> DB
 ```
 
-**Entkoppelt:** Das Frontend kennt nur den REST-Vertrag (URLs, JSON-Formate, Statuscodes, Fehlerformat) und
-die Basis-URL aus `VITE_API_URL`. Es weiß nichts von Hono, Zod oder JSON-Dateien. Ein anderer Client (z. B. eine
-mobile App oder `curl`) kann dieselbe API nutzen; Geschäftsregeln, Validierung und Datentrennung gelten trotzdem,
-weil sie im Backend liegen.
+**Entkoppelt:** Das Frontend kennt nur den REST-Vertrag (URLs, JSON-Formate, Statuscodes, Fehlerformat) und die
+Basis-URL aus `VITE_API_URL`. Es weiß nichts von Hono, Zod oder JSON-Dateien. Ein anderer Client (mobile App,
+`curl`) kann dieselbe API nutzen; Geschäftsregeln und Validierung gelten trotzdem, weil sie im Backend liegen.
+Beispiel: Der **Reisekalender** brauchte keine neue API – das Frontend stellt vorhandene Daten (`travelDate`)
+nur anders dar.
 
 ---
 
@@ -49,30 +47,23 @@ Voraussetzungen: [Deno 2](https://deno.com) und Node.js ≥ 20.
 # 1) Backend (Port 8000)
 cd backend
 cp .env.example .env
-deno task dev     # legt beim ersten Start Demo-Nutzer + Beispieldaten aus data/seed.json an
+deno task dev     # legt beim ersten Start data/destinations.json aus data/seed.json an
 
 # 2) Frontend (Port 5173) – zweites Terminal
 cd frontend
 cp .env.example .env.local
 npm install
-npm run dev
+npm run dev       # in Windows PowerShell: npm.cmd run dev
 ```
 
-Dann <http://localhost:5173> öffnen. **Demo-Konten** (in `backend/data/seed.json`):
+Dann <http://localhost:5173> öffnen. Zurücksetzen auf die Beispieldaten: Backend stoppen,
+`backend/data/destinations.json` löschen, Backend neu starten.
 
-| E-Mail              | Passwort            | Daten                                  |
-| ------------------- | ------------------- | -------------------------------------- |
-| `lena@fernweh.test` | `Fernweh-Demo-2026` | 6 Reiseziele (Tokio, Venedig, Bali, …) |
-| `max@fernweh.test`  | `Fernweh-Demo-2026` | 2 Reiseziele (Reykjavík, Rio)          |
-
-Zurücksetzen auf die Demo-Daten: Backend stoppen, `backend/data/users.json`, `sessions.json` und
-`destinations.json` löschen, Backend neu starten.
-
-| Befehl                     | Zweck                                         |
-| -------------------------- | --------------------------------------------- |
-| `deno task test` (backend) | 17 API-Tests (Auth, Datentrennung, CRUD, Regeln) |
-| `deno task check` (backend) | Typprüfung                                   |
-| `npm run build` (frontend) | Typprüfung mit `vue-tsc` + Produktions-Build  |
+| Befehl                      | Zweck                                         |
+| --------------------------- | --------------------------------------------- |
+| `deno task test` (backend)  | 15 API-Tests (CRUD, Validierung, Regeln, Persistenz) |
+| `deno task check` (backend) | Typprüfung                                    |
+| `npm run build` (frontend)  | Typprüfung mit `vue-tsc` + Produktions-Build  |
 
 ### HTTPS (optional, vgl. Vorlesung „Von http zu https“)
 
@@ -81,8 +72,8 @@ mkcert -install
 mkdir backend/certs && cd backend/certs && mkcert -key-file localhost-key.pem -cert-file localhost.pem localhost 127.0.0.1
 ```
 
-`backend/.env`: `USE_HTTPS=true` → Server startet per TLS, setzt HSTS und das Cookie mit `Secure`. Fehlen die
-Zertifikate, bricht der Start ab – **kein stiller Rückfall auf HTTP**. `frontend/.env.local`: `VITE_HTTPS=true`,
+`backend/.env`: `USE_HTTPS=true` → Server startet per TLS und setzt den HSTS-Header. Fehlen die Zertifikate, bricht
+der Start ab – **kein stiller Rückfall auf HTTP**. `frontend/.env.local`: `VITE_HTTPS=true`,
 `VITE_API_URL=https://localhost:8000` (sonst blockiert der Browser die API als *Mixed Content*).
 Zertifikate und `.env`-Dateien sind per `.gitignore` ausgeschlossen.
 
@@ -92,76 +83,50 @@ Zertifikate und `.env`-Dateien sind per `.gitignore` ausgeschlossen.
 
 ```
 backend/
-  main.ts                          Einstieg: .env lesen, Abhängigkeiten verdrahten, Seed, HTTP/HTTPS
-  src/app.ts                       Hono-App: CORS (mit Credentials), HSTS, Auth-Middleware, Fehlerbehandlung
-  src/auth.ts                      Session-Cookie setzen/löschen, Middleware requireAuth
-  src/routes/auth.ts               POST register/login/logout, GET me
-  src/routes/destinations.ts       CRUD-Controller, userId aus der Session
-  src/services/authService.ts      Registrierung, Login, Sessions (Ablauf 7 Tage)
-  src/services/crypto.ts           PBKDF2-Passwort-Hash, Session-Token, SHA-256
-  src/services/destinationService.ts  Geschäftsregeln R1–R4, Filter, Datentrennung
-  src/repository/jsonFileCollection.ts  Collection-Interface, JSON-Datei- und In-Memory-Implementierung
-  src/models/*.ts                  Zod-Schemas + Typen (Destination, User, Session)
+  main.ts                          Einstieg: .env lesen, nur 127.0.0.1, Seed, HTTP/HTTPS
+  src/app.ts                       Hono-App: Logger, CORS, HSTS, zentrale Fehlerbehandlung
+  src/routes/destinations.ts       REST-Controller, Zod-Validierung
+  src/services/destinationService.ts  Geschäftsregeln R1–R4, Filter, Sortierung
+  src/repository/jsonFileCollection.ts  Collection-Interface, JSON-Datei- und In-Memory-Speicher
+  src/models/destination.ts        Zod-Schemas = Datenmodell + Validierung
   src/validation.ts, src/errors.ts Zod → 400, ApiError → einheitliches Fehlerformat
-  src/seed.ts, data/seed.json      Demo-Nutzer und Beispieldaten
+  data/seed.json                   Beispieldaten
   tests/api_test.ts                Tests gegen die echte Hono-App (In-Memory-Speicher)
 
 frontend/src/
-  App.vue                          Login oder Hauptseite (je nach Session)
-  api/client.ts                    fetch-Wrapper: Cookies mitsenden, Fehlerformat → ApiRequestError, 401 → Login
-  api/auth.ts, api/destinations.ts alle REST-Aufrufe
-  composables/useAuth.ts           Anmeldezustand (wer ist angemeldet?)
+  App.vue                          Wurzel, zeigt DestinationsPage
+  api/client.ts                    fetch-Wrapper, Fehlerformat → ApiRequestError
+  api/destinations.ts              alle REST-Aufrufe
   composables/useDestinations.ts   Server State: Liste, Filter, Kennzahlen, CRUD
   composables/useToasts.ts         Benachrichtigungen
   types/destination.ts             Typen des REST-Vertrags + deutsche Labels
-  components/                      LoginView, DestinationsPage, HeroSection, InsightsBento, FilterBar,
+  components/                      DestinationsPage, HeroSection, InsightsBento, TripCalendar, FilterBar,
                                    DestinationCard, DestinationFormModal, DestinationDetailModal,
                                    ConfirmDialog, BaseModal, RatingInput, ToastStack, AppFooter
   styles/main.scss                 Bootstrap-Variablen (Sass) + Design-Tokens
 ```
 
-**Wo liegt der Zustand?** Server State (Reiseziele, Kennzahlen) in `useDestinations`, Anmeldezustand in `useAuth`,
-UI State (welches Modal offen ist, Formularinhalt) lokal in `DestinationsPage` bzw. in der jeweiligen Komponente.
-Komponenten kommunizieren über Props nach unten und Events nach oben; nur die Composables sprechen mit der API.
+**Wo liegt der Zustand?** Server State (Reiseziele, Kennzahlen) in `useDestinations`; UI State (welches Modal
+offen ist, angezeigter Kalendermonat, Formularinhalt) lokal in der jeweiligen Komponente. Daten fließen über
+Props nach unten und Events nach oben; nur das Composable spricht mit der API.
 
 ---
 
 ## Datenmodell
 
-```mermaid
-erDiagram
-  USER ||--o{ SESSION : "hat"
-  USER ||--o{ DESTINATION : "besitzt"
-  USER { string id PK
-         string email UK
-         string displayName
-         string passwordHash
-         string createdAt }
-  SESSION { string id PK "SHA-256 des Tokens"
-            string userId FK
-            string expiresAt }
-  DESTINATION { string id PK
-                string ownerId FK
-                string name
-                string country
-                enum continent
-                string notes
-                enum status
-                date travelDate
-                int rating
-                string imageUrl }
-```
+Eine Entität: **Destination** (Reiseziel).
 
-| Feld (Destination) | Typ                                         | Regeln                                  |
-| ------------------ | ------------------------------------------- | --------------------------------------- |
-| `name`, `country`  | string                                      | Pflicht, 1–80 / 1–60 Zeichen            |
+| Feld               | Typ                                          | Regeln                                  |
+| ------------------ | -------------------------------------------- | --------------------------------------- |
+| `id`               | string (UUID)                                | vom Server vergeben                     |
+| `name`, `country`  | string                                       | Pflicht, 1–80 / 1–60 Zeichen            |
 | `continent`        | `AFRICA` `ANTARCTICA` `ASIA` `EUROPE` `NORTH_AMERICA` `OCEANIA` `SOUTH_AMERICA` | Pflicht |
-| `notes`            | string                                      | max. 1000 Zeichen, Default `""`        |
-| `status`           | `WISHLIST` `PLANNED` `VISITED`              | Pflicht                                 |
-| `travelDate`       | `YYYY-MM-DD` \| null                        | gültiges Kalenderdatum                  |
-| `rating`           | 1–5 \| null                                 | ganzzahlig                              |
-| `imageUrl`         | string \| null                              | nur `https://`                          |
-| `id`, `ownerId`, `createdAt`, `updatedAt` | – | vom Server gesetzt; `ownerId` wird nie ausgeliefert |
+| `notes`            | string                                       | max. 1000 Zeichen, Default `""`        |
+| `status`           | `WISHLIST` `PLANNED` `VISITED`               | Pflicht                                 |
+| `travelDate`       | `YYYY-MM-DD` \| null                         | gültiges Kalenderdatum (Basis für den Kalender) |
+| `rating`           | 1–5 \| null                                  | ganzzahlig                              |
+| `imageUrl`         | string \| null                               | nur `https://`                          |
+| `createdAt`, `updatedAt` | ISO-Zeitstempel                        | vom Server gesetzt                      |
 
 ### Geschäftsregeln (im `DestinationService`)
 
@@ -169,66 +134,43 @@ erDiagram
 | ----- | -------------------------------------------------------------------------- | ------- |
 | R1    | Bewertung nur für Ziele mit Status `VISITED`.                              | 422     |
 | R2    | Ein besuchtes Ziel kann kein Reisedatum in der Zukunft haben.              | 422     |
-| R3    | Name + Land sind pro Nutzer eindeutig (ohne Groß-/Kleinschreibung).        | 409     |
+| R3    | Name + Land sind eindeutig (ohne Groß-/Kleinschreibung).                   | 409     |
 | R4    | Wechselt ein Ziel per PATCH weg von `VISITED`, wird die Bewertung entfernt. | –      |
 
 ---
 
-## Anmeldung, Session, Cookie
+## Warum keine Anmeldung?
 
-**Passwörter** werden nie gespeichert, sondern mit **PBKDF2-HMAC-SHA256** (Web Crypto API, 600 000 Iterationen,
-16 Byte zufälliges Salt pro Nutzer) gehasht: `pbkdf2-sha256$600000$<salt>$<hash>`. Das Salt verhindert, dass
-gleiche Passwörter gleiche Hashes ergeben (Rainbow Tables); die vielen Iterationen machen jeden Rateversuch teuer,
-falls die Datei gestohlen wird. Verglichen wird in konstanter Zeit.
+Fernweh ist bewusst eine **persönliche Single-User-Anwendung**: ein Reisetagebuch für eine Person auf dem eigenen
+Rechner. Die Prüfungsvorgabe verlangt ausdrücklich **kein** komplexes Login-System („klein, vollständig“).
 
-**Session:** Nach erfolgreichem Login erzeugt der Server ein zufälliges 256-Bit-Token. Gespeichert wird nur
-`SHA-256(Token)` mit `userId` und Ablaufzeit (7 Tage) in `sessions.json`. Das Token selbst geht einmal als Cookie
-an den Browser:
+- **Kein Nutzen:** Es gibt nur eine Person und nur ihre Daten – nichts, was zwischen Nutzern getrennt werden müsste.
+- **Weniger Angriffsfläche und Komplexität:** keine Passwörter, die gespeichert und geschützt werden müssen, keine
+  Sessions, kein CSRF-Thema.
+- **Trotzdem geschützt:** Der Server lauscht nur auf **127.0.0.1** (`HOST` in `.env`, siehe `main.ts`). Er ist
+  damit nur vom eigenen Rechner erreichbar, nicht aus dem WLAN oder Internet. CORS erlaubt nur `http://localhost:5173`.
 
-```
-Set-Cookie: sid=<token>; Max-Age=604800; Path=/; HttpOnly; SameSite=Lax   (+ Secure bei HTTPS)
-```
-
-- `HttpOnly` – JavaScript kann das Cookie nicht lesen → ein XSS-Angriff kann das Token nicht stehlen.
-- `SameSite=Lax` – fremde Websites können keine POST/PUT/DELETE-Requests mit diesem Cookie auslösen (CSRF).
-  Zusätzlich verlangt die API JSON (`Content-Type: application/json` → CORS-Preflight), und CORS erlaubt nur
-  `http://localhost:5173` mit `credentials: true`.
-- Frontend (`:5173`) und Backend (`:8000`) sind *same-site* (gleicher Host), daher wird das Cookie mit
-  `fetch(..., { credentials: "include" })` mitgeschickt.
-
-Bei jedem Request liest die Middleware `requireAuth` das Cookie, sucht die Session, prüft den Ablauf und legt den
-Nutzer in `c.get("user")` ab. Ohne gültige Session → `401 UNAUTHORIZED`; das Frontend zeigt dann die Login-Seite.
-**Logout** löscht die Session serverseitig und das Cookie im Browser.
-
-**Login-Fehler** sind absichtlich unspezifisch („E-Mail oder Passwort ist falsch“); auch bei unbekannter E-Mail wird
-ein Hash berechnet, damit die Antwortzeit nicht verrät, ob ein Konto existiert.
-
-### Datentrennung zwischen Nutzern
-
-- Die `userId` stammt **ausschließlich aus der Session**, nie aus URL oder Body (`ownerId` im Body → 400, da Schema `strict`).
-- Jede Methode im `DestinationService` filtert bzw. prüft `ownerId === userId`.
-- Fremde Reiseziele verhalten sich wie nicht vorhandene → **404** (nicht 403), damit fremde IDs nicht erkennbar sind.
-- Abgesichert durch den Test „Datentrennung: Nutzer B sieht, ändert und löscht keine Daten von A“.
+**Wenn mehrere Personen die App nutzen sollen** (Neubewertung von ADR-003), wäre der Weg:
+Registrierung/Login mit Passwort-Hash (z. B. PBKDF2 oder Argon2 mit Salt), serverseitige **Session** mit Token im
+**HttpOnly-, SameSite-Cookie**, eine Middleware, die vor jeder Route die Session prüft (sonst 401), und ein Feld
+`ownerId` an jedem Reiseziel, das der Service bei jedem Zugriff mit der Nutzer-ID aus der Session vergleicht
+(fremde Daten → 404). Dafür müssten nur Backend-Schichten ergänzt werden; die Entkopplung bleibt.
 
 ---
 
 ## REST-API
 
-Basis-URL: `http://localhost:8000/api` · alle Bodies JSON · 🔒 = Session-Cookie erforderlich
+Basis-URL: `http://localhost:8000/api` · alle Bodies JSON
 
-| Methode  | Pfad                    | Beschreibung                            | Erfolg                         | typische Fehler |
-| -------- | ----------------------- | --------------------------------------- | ------------------------------ | --------------- |
-| `POST`   | `/auth/register`        | Konto anlegen + anmelden                | 201 + `Set-Cookie`             | 400, 409        |
-| `POST`   | `/auth/login`           | anmelden                                | 200 + `Set-Cookie`             | 400, 401        |
-| `POST`   | `/auth/logout`          | abmelden                                | 204                            | –               |
-| `GET`    | `/auth/me` 🔒           | angemeldeter Nutzer                     | 200                            | 401             |
-| `GET`    | `/destinations` 🔒      | eigene Liste (Filter, Suche, Sortierung) | 200 + Array                   | 400, 401        |
-| `GET`    | `/destinations/{id}` 🔒 | einzelnes Reiseziel                     | 200                            | 401, 404        |
-| `POST`   | `/destinations` 🔒      | anlegen                                 | 201 + `Location`-Header        | 400, 401, 409, 422 |
-| `PUT`    | `/destinations/{id}` 🔒 | vollständig ersetzen (Formular)         | 200                            | 400, 401, 404, 409, 422 |
-| `PATCH`  | `/destinations/{id}` 🔒 | Teil-Update (Status, Bewertung)         | 200                            | 400, 401, 404, 422 |
-| `DELETE` | `/destinations/{id}` 🔒 | löschen                                 | 204                            | 401, 404        |
-| `GET`    | `/health`               | Lebenszeichen                           | 200                            | –               |
+| Methode  | Pfad                 | Beschreibung                       | Erfolg                  | typische Fehler |
+| -------- | -------------------- | ---------------------------------- | ----------------------- | --------------- |
+| `GET`    | `/destinations`      | Liste (Filter, Suche, Sortierung)  | 200 + Array             | 400             |
+| `GET`    | `/destinations/{id}` | einzelnes Reiseziel                | 200                     | 404             |
+| `POST`   | `/destinations`      | anlegen                            | 201 + `Location`-Header | 400, 409, 422   |
+| `PUT`    | `/destinations/{id}` | vollständig ersetzen (Formular)    | 200                     | 400, 404, 409, 422 |
+| `PATCH`  | `/destinations/{id}` | Teil-Update (Status, Bewertung)    | 200                     | 400, 404, 422   |
+| `DELETE` | `/destinations/{id}` | löschen                            | 204                     | 404             |
+| `GET`    | `/health`            | Lebenszeichen                      | 200                     | –               |
 
 Query-Parameter für `GET /destinations`: `status`, `continent`, `q` (Suche in Name/Land/Notizen),
 `sort` = `createdAt` (Default) | `name` | `travelDate` | `rating`.
@@ -238,9 +180,8 @@ Query-Parameter für `GET /destinations`: `status`, `continent`, `q` (Suche in N
 ```http
 POST /api/destinations
 Content-Type: application/json
-Cookie: sid=…
 
-{ "name": "Lissabon", "country": "Portugal", "continent": "EUROPE", "status": "WISHLIST" }
+{ "name": "Lissabon", "country": "Portugal", "continent": "EUROPE", "status": "PLANNED", "travelDate": "2027-05-10" }
 ```
 
 ```http
@@ -248,8 +189,8 @@ HTTP/1.1 201 Created
 Location: /api/destinations/3f1c…
 
 { "id": "3f1c…", "name": "Lissabon", "country": "Portugal", "continent": "EUROPE", "notes": "",
-  "status": "WISHLIST", "travelDate": null, "rating": null, "imageUrl": null,
-  "createdAt": "2026-11-12T10:00:00.000Z", "updatedAt": "2026-11-12T10:00:00.000Z" }
+  "status": "PLANNED", "travelDate": "2027-05-10", "rating": null, "imageUrl": null,
+  "createdAt": "2026-11-14T10:00:00.000Z", "updatedAt": "2026-11-14T10:00:00.000Z" }
 ```
 
 ### Fehlerformat (für alle Fehler gleich)
@@ -259,23 +200,31 @@ Location: /api/destinations/3f1c…
              "details": [{ "field": "name", "message": "Name ist erforderlich" }] } }
 ```
 
-| Status | `code`                    | Wann                                                        |
-| ------ | ------------------------- | ----------------------------------------------------------- |
-| 400    | `VALIDATION_ERROR`        | ungültiges JSON, fehlende/falsche/unbekannte Felder         |
-| 401    | `UNAUTHORIZED`            | keine oder abgelaufene Session                              |
-| 401    | `INVALID_CREDENTIALS`     | Login fehlgeschlagen                                        |
-| 404    | `NOT_FOUND`               | ID existiert nicht **oder gehört einem anderen Nutzer**; unbekannte Route |
-| 409    | `CONFLICT`                | Duplikat (R3, E-Mail schon registriert)                     |
-| 422    | `BUSINESS_RULE_VIOLATION` | R1, R2                                                      |
-| 500    | `INTERNAL_ERROR`          | unerwarteter Fehler (Details nur im Server-Log)             |
+| Status | `code`                    | Wann                                                    |
+| ------ | ------------------------- | ------------------------------------------------------- |
+| 400    | `VALIDATION_ERROR`        | ungültiges JSON, fehlende/falsche/unbekannte Felder     |
+| 404    | `NOT_FOUND`               | ID oder Route existiert nicht                           |
+| 409    | `CONFLICT`                | Duplikat (R3)                                           |
+| 422    | `BUSINESS_RULE_VIOLATION` | R1, R2                                                  |
+| 500    | `INTERNAL_ERROR`          | unerwarteter Fehler (Details nur im Server-Log)         |
 
 ### Validierung – wo und warum
 
 | Ebene    | Was                                                     | Warum                                            |
 | -------- | ------------------------------------------------------- | ------------------------------------------------ |
-| Frontend | `maxlength`, `type="email"/"url"/"date"`, Sterne deaktiviert, wenn nicht besucht | schnelle Rückmeldung, Bedienkomfort |
+| Frontend | `maxlength`, Input-Typen, Sterne deaktiviert, wenn nicht besucht | schnelle Rückmeldung, Bedienkomfort      |
 | Backend – Zod | Typen, Pflichtfelder, Längen, Enums, Datum, HTTPS-URL, keine unbekannten Felder | **verbindlich**: Requests können am Frontend vorbei geschickt werden (curl, DevTools) |
-| Backend – Service | Geschäftsregeln R1–R4, Eindeutigkeit, Besitz        | fachliche Regeln brauchen den gespeicherten Zustand |
+| Backend – Service | Geschäftsregeln R1–R4, Eindeutigkeit           | fachliche Regeln brauchen den gespeicherten Zustand |
+
+---
+
+## Reisekalender
+
+`TripCalendar.vue` zeigt eine **Monatsansicht** (Mo–So). Jedes Reiseziel mit `travelDate` erscheint an seinem Tag,
+farbig nach Status (geplant = Lime, besucht = Blau, Wunschziel = Gelb); ein Klick öffnet die Details.
+Darüber zeigt eine **Monatsleiste**, in welchen Monaten des Jahres Reisen liegen. Rechts listet **„Nächste Reisen“**
+die kommenden geplanten Reisen mit Countdown; ein Klick springt zum passenden Monat.
+Die Komponente bekommt dieselben Daten wie die Karten (`useDestinations().all`) – **keine zusätzliche API**.
 
 ---
 
@@ -287,88 +236,78 @@ sequenceDiagram
   participant F as DestinationFormModal
   participant P as DestinationsPage
   participant C as useDestinations / api
-  participant M as Hono: requireAuth
-  participant R as Route (Zod)
+  participant R as Hono-Route (Zod)
   participant S as DestinationService
   participant D as JsonFileCollection
   U->>F: Klick "Reiseziel anlegen"
   F->>P: emit("save", formDaten)
   P->>C: create(input)
-  C->>M: POST /api/destinations + Cookie sid
-  M->>M: SHA-256(Token) → Session → User
-  M->>R: c.set("user")
-  R->>R: DestinationInputSchema.parse(body)
-  R->>S: create(user.id, input)
-  S->>S: Regeln R1–R3 prüfen, id + Zeitstempel
+  C->>R: POST /api/destinations (JSON)
+  R->>R: DestinationInputSchema prüfen (sonst 400)
+  R->>S: create(input)
+  S->>S: Regeln R1–R3 (sonst 422/409), id + Zeitstempel
   S->>D: save(destination)
-  D->>D: schreibe destinations.json.tmp → rename
+  D->>D: destinations.json.tmp schreiben → rename
   D-->>S: gespeichert
-  S-->>R: DestinationDto (ohne ownerId)
+  S-->>R: Reiseziel
   R-->>C: 201 Created + Location + JSON
-  C->>M: GET /api/destinations (neu laden)
-  M-->>C: 200 + Liste
+  C->>R: GET /api/destinations (neu laden)
+  R-->>C: 200 + Liste
   C-->>P: items / stats aktualisiert
-  P-->>U: neue Karte + Toast "wurde hinzugefügt"
+  P-->>U: neue Karte, Kalender-Eintrag, Toast
 ```
 
 Fehlerfall: Liefert der Server 400/409/422, wirft `api/client.ts` einen `ApiRequestError` mit `fieldErrors`;
-das Formular bleibt offen und zeigt die Meldung direkt am Feld. Bei 401 springt die App zur Login-Seite.
+das Formular bleibt offen und zeigt die Meldung direkt am Feld.
 
 ---
 
 ## Architekturentscheidungen (ADRs, Kurzform)
 
 **ADR-001 – Backend mit Deno + Hono statt Java/Quarkus.**
-Kontext: Wahl laut Prüfungsvorgabe. Entscheidung: Deno + Hono. Begründung: eine Sprache (TypeScript) in Front- und
-Backend, kein Build-Schritt, Hono basiert auf Web-Standards (`Request`/`Response`), `app.request()` erlaubt Tests ohne
-laufenden Server. Konsequenz: kleineres Ökosystem; Schichten und Dependency Injection selbst strukturiert
-(Konstruktor-Injection in `createApp`).
+Eine Sprache (TypeScript) in Front- und Backend, kein Build-Schritt, Hono basiert auf Web-Standards
+(`Request`/`Response`), `app.request()` erlaubt Tests ohne laufenden Server. Konsequenz: kleineres Ökosystem;
+Schichten selbst strukturiert (Konstruktor-Injection in `createApp`).
 
-**ADR-002 – Persistenz als JSON-Dateien hinter einem Collection-Interface** (verworfen: SQLite, Deno KV).
-Begründung: drei kleine Sammlungen, wenige Nutzer; Architektur bleibt sichtbar, keine Zusatz-Infrastruktur.
-Schreibzugriffe werden serialisiert und atomar (temp + rename) geschrieben. Konsequenz: keine Transaktionen über
-mehrere Dateien, keine Indizes, Filtern im Speicher – bei vielen Nutzern ungeeignet. Austausch gegen SQLite betrifft
-nur `JsonFileCollection`, nicht Services oder API.
+**ADR-002 – Persistenz als JSON-Datei hinter einem Collection-Interface** (verworfen: SQLite, Deno KV).
+Eine Entität, eine Person, wenige Daten – Architektur bleibt sichtbar, keine Zusatz-Infrastruktur. Schreiben
+serialisiert und atomar (temp + rename). Konsequenz: keine Transaktionen, keine Indizes, Filtern im Speicher.
+Austausch gegen SQLite betrifft nur `JsonFileCollection`, nicht Service oder API.
 
-**ADR-003 – Serverseitige Sessions mit HttpOnly-Cookie statt JWT im localStorage.**
-Alternative: JWT im `localStorage` + `Authorization`-Header. Verworfen, weil (1) ein Token im `localStorage` per XSS
-auslesbar ist, (2) ein JWT vor Ablauf nicht widerrufen werden kann (Logout nur clientseitig). Mit Sessions kann der
-Server sofort abmelden; das Cookie ist für JavaScript unsichtbar. Konsequenz: Server muss Sessions speichern
-(`sessions.json`); CSRF muss bedacht werden → `SameSite=Lax`, JSON-only, enges CORS.
+**ADR-003 – Keine Anmeldung: Single-User, Server nur auf 127.0.0.1** (verworfen: Login mit Sessions/Cookies).
+Siehe „Warum keine Anmeldung?“. Konsequenz: Wer Zugriff auf den Rechner hat, sieht die Daten; Mehrbenutzerbetrieb
+oder Hosting im Internet erfordern eine Neubewertung (Login, Sessions, `ownerId`).
 
-**ADR-004 – Passwort-Hashing mit PBKDF2 (Web Crypto) statt bcrypt/Argon2-Bibliothek.**
-Argon2id wäre das modernere Verfahren, braucht in Deno aber eine native/WASM-Fremdbibliothek. PBKDF2-SHA256 ist in
-der Plattform eingebaut, von NIST/OWASP akzeptiert (≥ 600 000 Iterationen) und ohne Abhängigkeit nachvollziehbar.
-Das Format speichert die Iterationszahl → später erhöhbar.
+**ADR-004 – Reisekalender als reine Frontend-Ansicht** (verworfen: eigener Endpunkt `/api/calendar`).
+`travelDate` ist bereits in der Liste enthalten; ein eigener Endpunkt würde dieselben Daten doppelt liefern.
+Konsequenz: Bei sehr vielen Reisen würde man die Liste per Query (`?from=&to=`) auf einen Monat einschränken.
 
 **ADR-005 – Validierung mit Zod im Backend, Geschäftsregeln im Service.**
-Zod-Schemas sind zugleich Typquelle; `strict()` lehnt unbekannte Felder (z. B. `ownerId`) ab. Trennung 400 (Form
-falsch) vs. 422/409 (fachlich unzulässig). Das Frontend validiert nur zur Bequemlichkeit.
+Zod-Schemas sind zugleich Typquelle; `strict()` lehnt unbekannte Felder ab. Trennung 400 (Form falsch) vs.
+422/409 (fachlich unzulässig). Das Frontend validiert nur zur Bequemlichkeit.
 
 **ADR-006 – PUT für das Formular, PATCH für Schnellaktionen.**
 Formular kennt alle Felder → PUT (idempotent). Statuswechsel/Bewertung in der Detailansicht → PATCH mit einem Feld.
 
 **ADR-007 – Kein Vue Router, kein Pinia; Composables.**
-Ein Anwendungsfall, eine Seite + Login. `useAuth`/`useDestinations` reichen als zentraler Zustand. Neu bewerten,
-wenn weitere Seiten oder deutlich mehr geteilter Zustand hinzukommen.
+Eine Seite, ein Anwendungsfall. `useDestinations` reicht als zentraler Zustand.
 
 **ADR-008 – Bootstrap 5 über Sass, Modals ohne Bootstrap-JS; Schriften selbst gehostet.**
-Layout/Responsiveness aus Bootstrap, Design über Sass-Variablen. Modal-Zustand liegt in Vue (eine Quelle der
-Wahrheit). Schriften über `@fontsource` → keine Requests an Google (DSGVO).
+Layout aus Bootstrap, Design über Sass-Variablen. Modal-Zustand liegt in Vue (eine Quelle der Wahrheit).
+Schriften über `@fontsource` → keine Requests an Google (DSGVO).
 
 ---
 
 ## Bekannte Schwächen / was ich anders machen würde
 
-- **Kein Rate-Limiting beim Login** → Brute-Force nur durch PBKDF2-Kosten gebremst. Nächster Schritt: Fehlversuche pro IP/E-Mail zählen.
-- **JSON-Dateien** skalieren nicht (jede Anfrage filtert alle Daten im Speicher, keine Transaktionen) → SQLite.
-- Abgelaufene Sessions werden erst beim nächsten Zugriff gelöscht, nicht periodisch aufgeräumt.
-- Keine Passwort-Zurücksetzen-Funktion, keine E-Mail-Bestätigung.
+- **Keine Anmeldung** – bewusst, aber dadurch nur für eine Person auf einem Rechner geeignet.
+- **JSON-Datei** skaliert nicht (alles im Speicher gefiltert, keine Transaktionen) → SQLite.
+- Eine Reise hat nur **ein Datum**, keine Dauer (Start–Ende) – der Kalender zeigt nur den Abreisetag.
 - Bilder nur als externe URL (Hotlinking), kein Upload.
 - Keine Frontend-Tests (nur API-Tests).
 
-**Abweichungen vom Entwurf (Moodle-Abgabe „Themenwahl“):** zusätzliches Feld `imageUrl` (nur HTTPS, für die
-Karten-Darstellung); Benutzerkonten mit Anmeldung und Datentrennung, damit mehrere Personen die App nutzen können.
+**Abweichungen vom Entwurf (Moodle-Abgabe „Themenwahl“):** zusätzliches Feld `imageUrl` (nur HTTPS) für die
+Karten-Darstellung und ein Reisekalender als zusätzliche Ansicht.
 
 ---
 
@@ -379,11 +318,27 @@ Sapphire `#586EFF`, Walking on Sunshine `#FFFFA0`, Blushed Brick `#BC4749`; gro�
 Bento-Kacheln, Foto-Karten mit großem Radius. Ersatzschriften: **Unbounded** (Display), **Outfit** (Text).
 Beispielbilder: Unsplash.
 
+## Projekthistorie (Git)
+
+1. **14.11.2026** – erste vollständige Version: Reiseziele-CRUD mit Anmeldung, Vortragsfolien und Dokumentation.
+2. **18.11.2026** – aktueller Stand: Reisekalender ergänzt, Anmeldung entfernt (Single-User, Server nur auf
+   127.0.0.1), Vortragsunterlagen aus dem Code-Repository ausgelagert, Abschnitt zur KI-Nutzung überarbeitet.
+
+**Hinweis:** Zwischen diesen beiden Ständen gab es zwei weitere Commits („Sprechtext für den Vortrag“ und
+„Reisekalender ergänzt, Anmeldung entfernt“). Sie sind beim Umbau des Repositorys verloren gegangen; ihre Änderungen
+sind im zweiten Commit enthalten. Es gibt nur den Zweig `main`.
+
 ## Quellen und KI-Nutzung
 
-Vue.js-, Hono-, Deno-, Zod- und Bootstrap-Dokumentation, MDN Web Docs, OWASP Password Storage Cheat Sheet,
-Vorlesungsunterlagen T4 (Dr. A. Mester).
+Vue.js-, Hono-, Deno-, Zod- und Bootstrap-Dokumentation, MDN Web Docs, Vorlesungsunterlagen T4 (Dr. A. Mester).
 
-**KI-Unterstützung:** Der Großteil des Codes, der Tests und dieser Dokumentation wurde mit Claude (Anthropic)
-erstellt. Von mir stammen Thema, Anforderungen und Datenmodell (Moodle-Abgabe „Themenwahl“) sowie die
-Design-Vorlage. Ich habe die Anwendung getestet und mir Aufbau, Datenfluss und die Entscheidungen erarbeitet.
+**KI-Unterstützung:** Bei der Programmierung habe ich Claude (Anthropic) als Hilfsmittel eingesetzt. Ein großer
+Teil des Codes, der Tests und der Dokumentation ist mit dieser Unterstützung entstanden.
+
+**Eigene Leistung:**
+
+- **Design:** Gestaltungskonzept, Auswahl der Vorlage „Locally“, Farbwelt und mein eigenes Foto als Hero-Bild
+- **Inhalt:** Thema, Anforderungen und Datenmodell (Moodle-Abgabe „Themenwahl“)
+- **Entscheidungen:** Reisekalender als zusätzliche Funktion, bewusst keine Anmeldung
+- **Prüfung:** Ich habe die Anwendung getestet und mir Aufbau, Datenfluss und Entscheidungen erarbeitet, sodass
+  ich sie erklären kann.

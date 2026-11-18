@@ -31,19 +31,11 @@ export class ApiRequestError extends Error {
   }
 }
 
-/** Wird aufgerufen, wenn der Server 401 meldet (Session abgelaufen) → zurück zum Login. */
-let unauthorizedHandler: (() => void) | null = null;
-export function onUnauthorized(handler: () => void) {
-  unauthorizedHandler = handler;
-}
-
 export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...init,
-      // Session-Cookie (HttpOnly) mitsenden, obwohl die API auf einem anderen Port läuft
-      credentials: "include",
       headers: {
         Accept: "application/json",
         ...(init.body ? { "Content-Type": "application/json" } : {}),
@@ -63,7 +55,6 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
   const body = await response.json().catch(() => null);
   if (!response.ok) {
     const err = body?.error;
-    if (response.status === 401 && err?.code === "UNAUTHORIZED") unauthorizedHandler?.();
     throw new ApiRequestError(
       response.status,
       err?.code ?? "HTTP_ERROR",

@@ -1,7 +1,6 @@
 import { ApiError } from "../errors.ts";
 import type {
   Destination,
-  DestinationDto,
   DestinationInput,
   DestinationPatch,
   DestinationQuery,
@@ -11,15 +10,14 @@ import type { Collection } from "../repository/jsonFileCollection.ts";
 /**
  * Anwendungs- und Geschäftslogik für Reiseziele.
  *
- * Datentrennung: JEDE Methode bekommt die userId aus der Session (nie aus dem
- * Request-Body). Fremde Reiseziele verhalten sich wie nicht vorhandene → 404.
- * So verrät die API nicht einmal, dass eine fremde ID existiert.
- *
- * Geschäftsregeln (Invarianten):
+ * Geschäftsregeln (Invarianten), die hier – und nur hier – durchgesetzt werden:
  *  R1  Eine Bewertung (1–5) ist nur für besuchte Reiseziele erlaubt.
  *  R2  Ein besuchtes Reiseziel kann kein Reisedatum in der Zukunft haben.
- *  R3  Name + Land sind pro Nutzer eindeutig (ohne Groß-/Kleinschreibung).
- *  R4  Wechselt ein Ziel weg von "besucht", wird die Bewertung entfernt.
+ *  R3  Die Kombination aus Name und Land ist eindeutig (ohne Groß-/Kleinschreibung).
+ *  R4  Wechselt ein Ziel von "besucht" auf einen anderen Status, wird die Bewertung entfernt.
+ *
+ * Die Regeln liegen im Backend, damit jeder Client (Vue, mobile App, curl)
+ * dieselben Garantien bekommt.
  */
 export class DestinationService {
   constructor(
@@ -27,12 +25,8 @@ export class DestinationService {
     private readonly now: () => Date = () => new Date(),
   ) {}
 
-  private async ownedBy(userId: string): Promise<Destination[]> {
-    return (await this.repo.findAll()).filter((d) => d.ownerId === userId);
-  }
-
-  async list(userId: string, query: DestinationQuery = {}): Promise<DestinationDto[]> {
-    let items = await this.ownedBy(userId);
+  async list(query: DestinationQuery = {}): Promise<Destination[]> {
+    let items = await this.repo.findAll();
 
     if (query.status) items = items.filter((d) => d.status === query.status);
     if (query.continent) items = items.filter((d) => d.continent === query.continent);
@@ -44,56 +38,55 @@ export class DestinationService {
     }
 
     const sort = query.sort ?? "createdAt";
-    items.sort((a, b) => {
+    return items.sort((a, b) => {
       switch (sort) {
         case "name":
           return a.name.localeCompare(b.name, "de");
         case "rating":
           return (b.rating ?? 0) - (a.rating ?? 0);
         case "travelDate":
+          // Ziele ohne Datum ans Ende
           return (a.travelDate ?? "9999").localeCompare(b.travelDate ?? "9999");
         default:
-          return b.createdAt.localeCompare(a.createdAt);
+          return b.createdAt.localeCompare(a.createdAt); // neueste zuerst
       }
     });
-    return items.map(toDto);
   }
 
-  async get(userId: string, id: string): Promise<DestinationDto> {
-    return toDto(await this.find(userId, id));
+  async get(id: string): Promise<Destination> {
+    const item = await this.repo.findById(id);
+    if (!item) throw ApiError.notFound(`Reiseziel mit ID "${id}" wurde nicht gefunden`);
+    return item;
   }
 
-  async create(userId: string, input: DestinationInput): Promise<DestinationDto> {
-    await this.assertUnique(userId, input.name, input.country);
+  async create(input: DestinationInput): Promise<Destination> {
+    await this.assertUnique(input.name, input.country);
     this.applyRules(input);
     const timestamp = this.now().toISOString();
-    const saved = await this.repo.save({
+    return await this.repo.save({
       id: crypto.randomUUID(),
-      ownerId: userId,
       ...input,
       createdAt: timestamp,
       updatedAt: timestamp,
     });
-    return toDto(saved);
   }
 
   /** PUT: ersetzt alle fachlichen Felder. */
-  async replace(userId: string, id: string, input: DestinationInput): Promise<DestinationDto> {
-    const existing = await this.find(userId, id);
-    await this.assertUnique(userId, input.name, input.country, id);
+  async replace(id: string, input: DestinationInput): Promise<Destination> {
+    const existing = await this.get(id);
+    await this.assertUnique(input.name, input.country, id);
     this.applyRules(input);
-    return toDto(await this.repo.save({
+    return await this.repo.save({
       ...input,
       id,
-      ownerId: userId,
       createdAt: existing.createdAt,
       updatedAt: this.now().toISOString(),
-    }));
+    });
   }
 
   /** PATCH: ändert nur die übergebenen Felder. */
-  async update(userId: string, id: string, patch: DestinationPatch): Promise<DestinationDto> {
-    const existing = await this.find(userId, id);
+  async update(id: string, patch: DestinationPatch): Promise<Destination> {
+    const existing = await this.get(id);
     const merged: DestinationInput = {
       name: patch.name ?? existing.name,
       country: patch.country ?? existing.country,
@@ -105,37 +98,29 @@ export class DestinationService {
       imageUrl: patch.imageUrl !== undefined ? patch.imageUrl : existing.imageUrl,
     };
 
-    // R4
+    // R4: Statuswechsel weg von "besucht" entfernt implizit die Bewertung,
+    // sofern der Client nicht ausdrücklich eine Bewertung mitschickt.
     if (merged.status !== "VISITED" && patch.status && patch.rating === undefined) {
       merged.rating = null;
     }
     if (patch.name !== undefined || patch.country !== undefined) {
-      await this.assertUnique(userId, merged.name, merged.country, id);
+      await this.assertUnique(merged.name, merged.country, id);
     }
     this.applyRules(merged);
-    return toDto(await this.repo.save({
+    return await this.repo.save({
       ...merged,
       id,
-      ownerId: userId,
       createdAt: existing.createdAt,
       updatedAt: this.now().toISOString(),
-    }));
+    });
   }
 
-  async remove(userId: string, id: string): Promise<void> {
-    await this.find(userId, id); // wirft 404, wenn nicht vorhanden oder fremd
-    await this.repo.delete(id);
+  async remove(id: string): Promise<void> {
+    const deleted = await this.repo.delete(id);
+    if (!deleted) throw ApiError.notFound(`Reiseziel mit ID "${id}" wurde nicht gefunden`);
   }
 
-  // --- intern ----------------------------------------------------------------
-
-  private async find(userId: string, id: string): Promise<Destination> {
-    const item = await this.repo.findById(id);
-    if (!item || item.ownerId !== userId) {
-      throw ApiError.notFound(`Reiseziel mit ID "${id}" wurde nicht gefunden`);
-    }
-    return item;
-  }
+  // --- Geschäftsregeln -----------------------------------------------------
 
   private applyRules(input: DestinationInput) {
     // R1
@@ -154,17 +139,13 @@ export class DestinationService {
     }
   }
 
-  private async assertUnique(userId: string, name: string, country: string, ignoreId?: string) {
+  private async assertUnique(name: string, country: string, ignoreId?: string) {
     const key = (s: string) => s.trim().toLocaleLowerCase("de");
-    const duplicate = (await this.ownedBy(userId)).find(
+    const duplicate = (await this.repo.findAll()).find(
       (d) => d.id !== ignoreId && key(d.name) === key(name) && key(d.country) === key(country),
     );
     if (duplicate) {
       throw ApiError.conflict(`"${name}" (${country}) ist bereits in Ihrer Liste`);
     }
   }
-}
-
-function toDto({ ownerId: _, ...rest }: Destination): DestinationDto {
-  return rest;
 }

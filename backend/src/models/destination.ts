@@ -88,13 +88,9 @@ export type DestinationInput = z.infer<typeof DestinationInputSchema>;
 export type DestinationPatch = z.infer<typeof DestinationPatchSchema>;
 export type DestinationQuery = z.infer<typeof DestinationQuerySchema>;
 
-/** Gespeicherte Form: mit Besitzer (wird nie vom Client gesetzt, sondern aus der Session). */
+/** Gespeicherte Form: die Eingabe plus serverseitig verwaltete Felder. */
 export interface Destination extends DestinationInput {
   id: string;
-  ownerId: string;
   createdAt: string;
   updatedAt: string;
 }
-
-/** Was die API nach außen liefert: ohne interne Besitzer-ID. */
-export type DestinationDto = Omit<Destination, "ownerId">;

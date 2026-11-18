@@ -1,121 +1,106 @@
-{
-  "_hinweis": "Testdaten fuer die Demo. Passwoerter sind Demo-Werte und werden beim Seeding gehasht gespeichert.",
-  "users": [
-    {
-      "email": "lena@fernweh.test",
-      "displayName": "Lena",
-      "password": "Fernweh-Demo-2026"
-    },
-    {
-      "email": "max@fernweh.test",
-      "displayName": "Max",
-      "password": "Fernweh-Demo-2026"
-    }
-  ],
-  "destinations": [
-    {
-      "name": "Tokio",
-      "country": "Japan",
-      "continent": "ASIA",
-      "notes": "Shibuya Crossing bei Nacht, Tsukiji-Außenmarkt, Tagesausflug nach Nikko.",
-      "status": "PLANNED",
-      "travelDate": "2027-04-02",
-      "rating": null,
-      "imageUrl": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&q=70",
-      "createdAt": "2026-10-20T09:00:00.000Z",
-      "updatedAt": "2026-10-20T09:00:00.000Z",
-      "owner": "lena@fernweh.test"
-    },
-    {
-      "name": "Venedig",
-      "country": "Italien",
-      "continent": "EUROPE",
-      "notes": "Mit dem Vaporetto über den Canal Grande, Cicchetti in Cannaregio.",
-      "status": "VISITED",
-      "travelDate": "2025-05-18",
-      "rating": 4,
-      "imageUrl": "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=900&q=70",
-      "createdAt": "2026-10-19T09:00:00.000Z",
-      "updatedAt": "2026-10-19T09:00:00.000Z",
-      "owner": "lena@fernweh.test"
-    },
-    {
-      "name": "Machu Picchu",
-      "country": "Peru",
-      "continent": "SOUTH_AMERICA",
-      "notes": "Inka-Trail (4 Tage) – Permit rechtzeitig buchen!",
-      "status": "WISHLIST",
-      "travelDate": null,
-      "rating": null,
-      "imageUrl": "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=900&q=70",
-      "createdAt": "2026-10-18T09:00:00.000Z",
-      "updatedAt": "2026-10-18T09:00:00.000Z",
-      "owner": "lena@fernweh.test"
-    },
-    {
-      "name": "Bali",
-      "country": "Indonesien",
-      "continent": "ASIA",
-      "notes": "Reisterrassen von Tegallalang, Sonnenaufgang am Mount Batur.",
-      "status": "VISITED",
-      "travelDate": "2024-08-10",
-      "rating": 5,
-      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=900&q=70",
-      "createdAt": "2026-10-17T09:00:00.000Z",
-      "updatedAt": "2026-10-17T09:00:00.000Z",
-      "owner": "lena@fernweh.test"
-    },
-    {
-      "name": "Reykjavík",
-      "country": "Island",
-      "continent": "EUROPE",
-      "notes": "Polarlichter, Golden Circle und Blaue Lagune.",
-      "status": "WISHLIST",
-      "travelDate": null,
-      "rating": null,
-      "imageUrl": "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=900&q=70",
-      "createdAt": "2026-10-16T09:00:00.000Z",
-      "updatedAt": "2026-10-16T09:00:00.000Z",
-      "owner": "max@fernweh.test"
-    },
-    {
-      "name": "Sydney",
-      "country": "Australien",
-      "continent": "OCEANIA",
-      "notes": "Bondi-to-Coogee-Walk, Fähre nach Manly.",
-      "status": "PLANNED",
-      "travelDate": "2027-01-15",
-      "rating": null,
-      "imageUrl": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=900&q=70",
-      "createdAt": "2026-10-15T09:00:00.000Z",
-      "updatedAt": "2026-10-15T09:00:00.000Z",
-      "owner": "lena@fernweh.test"
-    },
-    {
-      "name": "Rom",
-      "country": "Italien",
-      "continent": "EUROPE",
-      "notes": "Kolosseum, Trastevere am Abend, bester Supplì bei I Supplì.",
-      "status": "VISITED",
-      "travelDate": "2023-10-03",
-      "rating": 5,
-      "imageUrl": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=900&q=70",
-      "createdAt": "2026-10-14T09:00:00.000Z",
-      "updatedAt": "2026-10-14T09:00:00.000Z",
-      "owner": "lena@fernweh.test"
-    },
-    {
-      "name": "Rio de Janeiro",
-      "country": "Brasilien",
-      "continent": "SOUTH_AMERICA",
-      "notes": "Zuckerhut zum Sonnenuntergang, Samba in Lapa.",
-      "status": "WISHLIST",
-      "travelDate": null,
-      "rating": null,
-      "imageUrl": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=900&q=70",
-      "createdAt": "2026-10-13T09:00:00.000Z",
-      "updatedAt": "2026-10-13T09:00:00.000Z",
-      "owner": "max@fernweh.test"
-    }
-  ]
-}
+[
+  {
+    "id": "b6f1c0de-0001-4a7e-9c11-000000000001",
+    "name": "Tokio",
+    "country": "Japan",
+    "continent": "ASIA",
+    "notes": "Shibuya Crossing bei Nacht, Tsukiji-Außenmarkt, Tagesausflug nach Nikko.",
+    "status": "PLANNED",
+    "travelDate": "2027-04-02",
+    "rating": null,
+    "imageUrl": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&q=70",
+    "createdAt": "2026-10-20T09:00:00.000Z",
+    "updatedAt": "2026-10-20T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0002-4a7e-9c11-000000000002",
+    "name": "Venedig",
+    "country": "Italien",
+    "continent": "EUROPE",
+    "notes": "Mit dem Vaporetto über den Canal Grande, Cicchetti in Cannaregio.",
+    "status": "VISITED",
+    "travelDate": "2025-05-18",
+    "rating": 4,
+    "imageUrl": "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=900&q=70",
+    "createdAt": "2026-10-19T09:00:00.000Z",
+    "updatedAt": "2026-10-19T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0003-4a7e-9c11-000000000003",
+    "name": "Machu Picchu",
+    "country": "Peru",
+    "continent": "SOUTH_AMERICA",
+    "notes": "Inka-Trail (4 Tage) – Permit rechtzeitig buchen!",
+    "status": "WISHLIST",
+    "travelDate": null,
+    "rating": null,
+    "imageUrl": "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=900&q=70",
+    "createdAt": "2026-10-18T09:00:00.000Z",
+    "updatedAt": "2026-10-18T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0004-4a7e-9c11-000000000004",
+    "name": "Bali",
+    "country": "Indonesien",
+    "continent": "ASIA",
+    "notes": "Reisterrassen von Tegallalang, Sonnenaufgang am Mount Batur.",
+    "status": "VISITED",
+    "travelDate": "2024-08-10",
+    "rating": 5,
+    "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=900&q=70",
+    "createdAt": "2026-10-17T09:00:00.000Z",
+    "updatedAt": "2026-10-17T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0005-4a7e-9c11-000000000005",
+    "name": "Reykjavík",
+    "country": "Island",
+    "continent": "EUROPE",
+    "notes": "Polarlichter, Golden Circle und Blaue Lagune.",
+    "status": "WISHLIST",
+    "travelDate": null,
+    "rating": null,
+    "imageUrl": "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=900&q=70",
+    "createdAt": "2026-10-16T09:00:00.000Z",
+    "updatedAt": "2026-10-16T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0006-4a7e-9c11-000000000006",
+    "name": "Sydney",
+    "country": "Australien",
+    "continent": "OCEANIA",
+    "notes": "Bondi-to-Coogee-Walk, Fähre nach Manly.",
+    "status": "PLANNED",
+    "travelDate": "2027-01-15",
+    "rating": null,
+    "imageUrl": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=900&q=70",
+    "createdAt": "2026-10-15T09:00:00.000Z",
+    "updatedAt": "2026-10-15T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0007-4a7e-9c11-000000000007",
+    "name": "Rom",
+    "country": "Italien",
+    "continent": "EUROPE",
+    "notes": "Kolosseum, Trastevere am Abend, bester Supplì bei I Supplì.",
+    "status": "VISITED",
+    "travelDate": "2023-10-03",
+    "rating": 5,
+    "imageUrl": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=900&q=70",
+    "createdAt": "2026-10-14T09:00:00.000Z",
+    "updatedAt": "2026-10-14T09:00:00.000Z"
+  },
+  {
+    "id": "b6f1c0de-0008-4a7e-9c11-000000000008",
+    "name": "Rio de Janeiro",
+    "country": "Brasilien",
+    "continent": "SOUTH_AMERICA",
+    "notes": "Zuckerhut zum Sonnenuntergang, Samba in Lapa.",
+    "status": "WISHLIST",
+    "travelDate": null,
+    "rating": null,
+    "imageUrl": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=900&q=70",
+    "createdAt": "2026-10-13T09:00:00.000Z",
+    "updatedAt": "2026-10-13T09:00:00.000Z"
+  }
+]

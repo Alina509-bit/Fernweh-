@@ -177,7 +177,7 @@ function formatDate(iso: string) {
   opacity: 0.9;
 }
 .motto {
-  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  font-size: clamp(1.2rem, 2.6vw, 2.3rem);
   text-transform: uppercase;
   line-height: 1.02;
   letter-spacing: -0.03em;

@@ -5,9 +5,8 @@ defineProps<{
   visited: number;
   countries: number;
   planned: number;
-  userName: string;
 }>();
-const emit = defineEmits<{ create: []; logout: [] }>();
+const emit = defineEmits<{ create: [] }>();
 </script>
 
 <template>
@@ -20,19 +19,12 @@ const emit = defineEmits<{ create: []; logout: [] }>();
         </a>
         <ul class="nav-links list-unstyled d-none d-md-flex mb-0">
           <li><a href="#ueberblick">Überblick</a></li>
+          <li><a href="#kalender">Kalender</a></li>
           <li><a href="#reiseziele">Reiseziele</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-2">
-          <span class="user-chip d-none d-sm-inline-flex" :title="`Angemeldet als ${userName}`">
-            <span class="avatar">{{ userName.charAt(0).toUpperCase() }}</span>{{ userName }}
-          </span>
-          <button class="btn btn-ink rounded-pill btn-sm px-3" @click="emit('create')">
-            <i class="bi bi-plus-lg" /> <span class="d-none d-sm-inline">Neues Ziel</span>
-          </button>
-          <button class="btn btn-soft rounded-pill btn-sm px-3" title="Abmelden" @click="emit('logout')">
-            <i class="bi bi-box-arrow-right" /> <span class="d-none d-lg-inline">Abmelden</span>
-          </button>
-        </div>
+        <button class="btn btn-ink rounded-pill btn-sm px-3" @click="emit('create')">
+          <i class="bi bi-plus-lg" /> <span class="d-none d-sm-inline">Neues Ziel</span>
+        </button>
       </nav>
 
       <div class="hero-meta d-none d-md-flex">
@@ -152,24 +144,6 @@ const emit = defineEmits<{ create: []; logout: [] }>();
   border-radius: 50%;
   margin-left: 2px;
   margin-bottom: 0.3rem;
-}
-.user-chip {
-  align-items: center;
-  gap: 0.45rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding-right: 0.5rem;
-}
-.avatar {
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 50%;
-  background: var(--lime);
-  border: 2px solid var(--ink);
-  display: grid;
-  place-items: center;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
 }
 .nav-links {
   gap: 2rem;

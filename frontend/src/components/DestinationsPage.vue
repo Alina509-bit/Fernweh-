@@ -10,16 +10,15 @@ import FilterBar from "./FilterBar.vue";
 import HeroSection from "./HeroSection.vue";
 import InsightsBento from "./InsightsBento.vue";
 import ToastStack from "./ToastStack.vue";
-import { useAuth } from "../composables/useAuth";
+import TripCalendar from "./TripCalendar.vue";
 import { useDestinations } from "../composables/useDestinations";
 import { useToasts } from "../composables/useToasts";
 import { STATUS_LABELS, type Destination, type DestinationInput } from "../types/destination";
 
 /**
- * Hauptseite für angemeldete Nutzer. Orchestriert den UI State (welches Modal
- * ist offen?) und verbindet die Komponenten mit dem Server State aus useDestinations().
+ * Hauptseite. Orchestriert den UI State (welches Modal ist offen?) und
+ * verbindet die Komponenten mit dem Server State aus useDestinations().
  */
-const { user, logout } = useAuth();
 const store = useDestinations();
 const { items, all, loading, loadError, filter, stats } = store;
 const toast = useToasts();
@@ -125,18 +124,18 @@ async function confirmDelete() {
     :visited="stats.visited"
     :countries="stats.countries"
     :planned="stats.planned"
-    :user-name="user?.displayName ?? ''"
     @create="openCreate"
-    @logout="logout"
   />
 
   <main>
     <InsightsBento :stats="stats" @open="(d) => (detailId = d.id)" />
 
+    <TripCalendar :destinations="all" @open="(d) => (detailId = d.id)" />
+
     <section id="reiseziele" class="container-xl pb-5">
       <div class="row align-items-end g-4 mb-4">
         <div class="col-lg-7">
-          <p class="eyebrow"><span class="num">02</span> Meine Reiseziele</p>
+          <p class="eyebrow"><span class="num">03</span> Meine Reiseziele</p>
           <h2 class="section-title font-display">
             Reise mit Plan.<br /><span class="text-sapphire">Erinnere dich an alles.</span>
           </h2>

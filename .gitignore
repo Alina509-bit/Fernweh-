@@ -5,8 +5,6 @@ dist/
 
 # Laufzeitdaten (Beispieldaten liegen in backend/data/seed.json)
 backend/data/destinations.json
-backend/data/users.json
-backend/data/sessions.json
 backend/data/*.tmp
 
 # Lokale SSL/TLS-Zertifikate – niemals committen!
